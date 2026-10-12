@@ -1,0 +1,13 @@
+{
+  "name": "forma-core",
+  "version": "0.1.0",
+  "description": "Núcleo local-first: taxonomia, catálogo, motor de volume/fadiga, importador do Diário e armazenamento (IndexedDB).",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.2.5"
+  }
+}

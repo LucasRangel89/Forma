@@ -1,0 +1,927 @@
+{
+ "logs": [
+  {
+   "id": 2008,
+   "date": "2026-10-08",
+   "muscle": "Geral",
+   "exercise": "Treino maluco funcional",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2007,
+   "date": "2026-10-08",
+   "muscle": "Pernas",
+   "exercise": "Cadeira Extensora Especial XYZ",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2006,
+   "date": "2026-10-08",
+   "muscle": "Tríceps",
+   "exercise": "Triceps Pulley",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2005,
+   "date": "2026-10-08",
+   "muscle": "Bíceps",
+   "exercise": "rosca direta barra",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2004,
+   "date": "2026-10-08",
+   "muscle": "Ombros",
+   "exercise": "Elevacao lateral",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2003,
+   "date": "2026-10-08",
+   "muscle": "Pernas",
+   "exercise": "agachamento",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2002,
+   "date": "2026-10-08",
+   "muscle": "Costas",
+   "exercise": "Puxada na frente",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2001,
+   "date": "2026-10-08",
+   "muscle": "Peito",
+   "exercise": "SUPINO INCLINADO C/ HALTERES",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 2000,
+   "date": "2026-10-08",
+   "muscle": "Peito",
+   "exercise": "supino  reto",
+   "weight": 30,
+   "reps": [
+    12,
+    10
+   ],
+   "technique": "Convencional",
+   "nextGoal": "",
+   "isPR": false
+  },
+  {
+   "id": 1051,
+   "date": "2026-10-03",
+   "muscle": "Abdômen",
+   "exercise": "Roda Abdominal",
+   "weight": 71,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1050,
+   "date": "2026-10-02",
+   "muscle": "Abdômen",
+   "exercise": "Abdominal na Polia",
+   "weight": 70,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1049,
+   "date": "2026-10-01",
+   "muscle": "Abdômen",
+   "exercise": "Elevação de Pernas",
+   "weight": 69,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1048,
+   "date": "2026-10-07",
+   "muscle": "Abdômen",
+   "exercise": "Prancha",
+   "weight": 68,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1047,
+   "date": "2026-10-06",
+   "muscle": "Abdômen",
+   "exercise": "Abdominal Infra",
+   "weight": 67,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1046,
+   "date": "2026-10-05",
+   "muscle": "Abdômen",
+   "exercise": "Abdominal Supra",
+   "weight": 66,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1045,
+   "date": "2026-10-04",
+   "muscle": "Tríceps",
+   "exercise": "Supino Fechado",
+   "weight": 65,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  },
+  {
+   "id": 1044,
+   "date": "2026-10-03",
+   "muscle": "Tríceps",
+   "exercise": "Mergulho no Banco",
+   "weight": 64,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1043,
+   "date": "2026-10-02",
+   "muscle": "Tríceps",
+   "exercise": "Tríceps Francês",
+   "weight": 63,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1042,
+   "date": "2026-10-01",
+   "muscle": "Tríceps",
+   "exercise": "Tríceps Testa",
+   "weight": 62,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1041,
+   "date": "2026-10-07",
+   "muscle": "Tríceps",
+   "exercise": "Tríceps Corda",
+   "weight": 61,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1040,
+   "date": "2026-10-06",
+   "muscle": "Tríceps",
+   "exercise": "Tríceps Polia Alta",
+   "weight": 60,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1039,
+   "date": "2026-10-05",
+   "muscle": "Bíceps",
+   "exercise": "Rosca na Polia",
+   "weight": 59,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1038,
+   "date": "2026-10-04",
+   "muscle": "Bíceps",
+   "exercise": "Rosca Concentrada",
+   "weight": 58,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1037,
+   "date": "2026-10-03",
+   "muscle": "Bíceps",
+   "exercise": "Rosca Scott",
+   "weight": 57,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1036,
+   "date": "2026-10-02",
+   "muscle": "Bíceps",
+   "exercise": "Rosca Martelo",
+   "weight": 56,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  },
+  {
+   "id": 1035,
+   "date": "2026-10-01",
+   "muscle": "Bíceps",
+   "exercise": "Rosca Alternada",
+   "weight": 55,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1034,
+   "date": "2026-10-07",
+   "muscle": "Bíceps",
+   "exercise": "Rosca Direta",
+   "weight": 54,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1033,
+   "date": "2026-10-06",
+   "muscle": "Ombros",
+   "exercise": "Encolhimento",
+   "weight": 53,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1032,
+   "date": "2026-10-05",
+   "muscle": "Ombros",
+   "exercise": "Remada Alta",
+   "weight": 52,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1031,
+   "date": "2026-10-04",
+   "muscle": "Ombros",
+   "exercise": "Elevação Frontal",
+   "weight": 51,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1030,
+   "date": "2026-10-03",
+   "muscle": "Ombros",
+   "exercise": "Elevação Lateral",
+   "weight": 50,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1029,
+   "date": "2026-10-02",
+   "muscle": "Ombros",
+   "exercise": "Desenvolvimento c/ Halteres",
+   "weight": 49,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1028,
+   "date": "2026-10-01",
+   "muscle": "Ombros",
+   "exercise": "Desenvolvimento Militar",
+   "weight": 48,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1027,
+   "date": "2026-10-07",
+   "muscle": "Pernas",
+   "exercise": "Panturrilha Sentado",
+   "weight": 47,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  },
+  {
+   "id": 1026,
+   "date": "2026-10-06",
+   "muscle": "Pernas",
+   "exercise": "Panturrilha em Pé",
+   "weight": 46,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1025,
+   "date": "2026-10-05",
+   "muscle": "Pernas",
+   "exercise": "Elevação Pélvica",
+   "weight": 45,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1024,
+   "date": "2026-10-04",
+   "muscle": "Pernas",
+   "exercise": "Afundo",
+   "weight": 44,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1023,
+   "date": "2026-10-03",
+   "muscle": "Pernas",
+   "exercise": "Stiff",
+   "weight": 43,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1022,
+   "date": "2026-10-02",
+   "muscle": "Pernas",
+   "exercise": "Mesa Flexora",
+   "weight": 42,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1021,
+   "date": "2026-10-01",
+   "muscle": "Pernas",
+   "exercise": "Cadeira Extensora",
+   "weight": 41,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1020,
+   "date": "2026-10-07",
+   "muscle": "Pernas",
+   "exercise": "Hack Squat",
+   "weight": 40,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1019,
+   "date": "2026-10-06",
+   "muscle": "Pernas",
+   "exercise": "Leg Press 45°",
+   "weight": 39,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1018,
+   "date": "2026-10-05",
+   "muscle": "Pernas",
+   "exercise": "Agachamento Livre",
+   "weight": 38,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  },
+  {
+   "id": 1017,
+   "date": "2026-10-04",
+   "muscle": "Costas",
+   "exercise": "Crucifixo Inverso",
+   "weight": 37,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1016,
+   "date": "2026-10-03",
+   "muscle": "Costas",
+   "exercise": "Pullover na Polia",
+   "weight": 36,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1015,
+   "date": "2026-10-02",
+   "muscle": "Costas",
+   "exercise": "Levantamento Terra",
+   "weight": 35,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1014,
+   "date": "2026-10-01",
+   "muscle": "Costas",
+   "exercise": "Remada Cavalinho",
+   "weight": 34,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1013,
+   "date": "2026-10-07",
+   "muscle": "Costas",
+   "exercise": "Remada Unilateral",
+   "weight": 33,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1012,
+   "date": "2026-10-06",
+   "muscle": "Costas",
+   "exercise": "Remada Baixa",
+   "weight": 32,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1011,
+   "date": "2026-10-05",
+   "muscle": "Costas",
+   "exercise": "Remada Curvada",
+   "weight": 31,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1010,
+   "date": "2026-10-04",
+   "muscle": "Costas",
+   "exercise": "Barra Fixa",
+   "weight": 30,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1009,
+   "date": "2026-10-03",
+   "muscle": "Costas",
+   "exercise": "Puxada Frontal",
+   "weight": 29,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  },
+  {
+   "id": 1008,
+   "date": "2026-10-02",
+   "muscle": "Peito",
+   "exercise": "Flexão de Braço",
+   "weight": 28,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1007,
+   "date": "2026-10-01",
+   "muscle": "Peito",
+   "exercise": "Paralelas",
+   "weight": 27,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1006,
+   "date": "2026-10-07",
+   "muscle": "Peito",
+   "exercise": "Peck Deck",
+   "weight": 26,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1005,
+   "date": "2026-10-06",
+   "muscle": "Peito",
+   "exercise": "Crossover na Polia",
+   "weight": 25,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1004,
+   "date": "2026-10-05",
+   "muscle": "Peito",
+   "exercise": "Crucifixo com Halteres",
+   "weight": 24,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1003,
+   "date": "2026-10-04",
+   "muscle": "Peito",
+   "exercise": "Supino Inclinado c/ Halteres",
+   "weight": 23,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1002,
+   "date": "2026-10-03",
+   "muscle": "Peito",
+   "exercise": "Supino Reto com Halteres",
+   "weight": 22,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1001,
+   "date": "2026-10-02",
+   "muscle": "Peito",
+   "exercise": "Supino Inclinado com Barra",
+   "weight": 21,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": false
+  },
+  {
+   "id": 1000,
+   "date": "2026-10-01",
+   "muscle": "Peito",
+   "exercise": "Supino Reto com Barra",
+   "weight": 20,
+   "reps": [
+    10,
+    8,
+    8
+   ],
+   "technique": "Convencional",
+   "nextGoal": "⚖️ Manter Carga",
+   "isPR": true
+  }
+ ],
+ "userBodyweight": 82,
+ "workoutTemplates": [
+  {
+   "id": 5,
+   "name": "Push A",
+   "exercises": [
+    {
+     "exercise": "Supino Reto com Barra",
+     "muscle": "Peito"
+    },
+    {
+     "exercise": "Elevação Lateral",
+     "muscle": "Ombros"
+    }
+   ]
+  }
+ ]
+}
