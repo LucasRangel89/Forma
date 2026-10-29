@@ -21,9 +21,11 @@ export function buildDiarioLogs(sessions: DiarioSession[], exercises: Exercise[]
   const logs: Omit<WorkoutLog, "id">[] = [];
   const custom: Exercise[] = [];
   const pending: { id: string; name: string }[] = [];
-  const used = new Set<string>();
+  const used = new Set<string>(exercises.map(exercise => exercise.id));
+  let matched = 0;
   sessions.forEach((session, i) => {
-    let id = matchExercise(session.name, exercises, aliases);
+    let id = matchExercise(session.name, [...exercises, ...custom], aliases);
+    if (id && !custom.some(exercise => exercise.id === id)) matched++;
     if (!id) {
       const base = slug(session.name) || "exercicio";
       id = `${base}-user-${ownerId.slice(0, 8)}`;
@@ -55,5 +57,5 @@ export function buildDiarioLogs(sessions: DiarioSession[], exercises: Exercise[]
     });
     void i;
   });
-  return { logs, custom, matched: sessions.length - pending.length, pending };
+  return { logs, custom, matched, pending };
 }
