@@ -31,6 +31,17 @@ export const storedLogSchema = logFieldsSchema.extend({
   demo: z.boolean(),
 }).refine(v => v.entries.some(e => e.sets.some(s => s.completed)), "O registro precisa ter uma série concluída.");
 
+// Editing a historical record must also accept the longer names from Diário.
+// Identity, demo status and the original plan link are deliberately not editable.
+export const logChangesSchema = logFieldsSchema.omit({ planId: true }).extend({
+  name: z.string().trim().min(1).max(80),
+}).refine(v => v.entries.some(e => e.sets.some(s => s.completed)), "Mantenha pelo menos uma série concluída no registro.")
+  .refine(v => new Date(v.date).getTime() <= Date.now() + 60000, "O registro não pode ter uma data futura.");
+export const updateLogSchema = z.object({ expected: storedLogSchema, changes: logChangesSchema });
+// String IDs remain accepted for older clients; new UI sends a snapshot to
+// avoid deleting a record that another tab has just corrected.
+export const deleteLogSchema = z.union([z.string().min(1).max(100), z.object({ expected: storedLogSchema })]);
+
 export const appDataSchema = z.object({
   exercises: z.array(exerciseSchema).min(1).max(5000),
   plans: z.array(planSchema).max(5000),

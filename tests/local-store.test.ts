@@ -133,3 +133,63 @@ test("volume semanal soma pesos das porções e respeita séries efetivas", () =
   assert.equal(volume.find(group => group.id === "peito")?.value, 10);
   assert.equal(volume.find(group => group.id === "triceps")?.value, 5);
 });
+
+test("editar registro preserva identidade, vínculo, exemplo e metadados; conflito não sobrescreve", async () => {
+  const initial = await reset();
+  const expected = structuredClone(initial.logs[0]);
+  expected.entries[0].sets[0].rpe = 8;
+  // Put metadata in the database as a legacy backup would.
+  const restored = await performLocalAction("restoreBackup", { version: 1, ...initial, logs: initial.logs.map(log => log.id === expected.id ? expected : log) });
+  const original = restored.logs.find(log => log.id === expected.id)!;
+  const changes = { name: "Sessão corrigida", date: original.date, duration: 45, entries: structuredClone(original.entries), notes: "Anotação corrigida" };
+  changes.entries[0].sets[0].weight = 31.5;
+  const result = await performLocalAction("updateLog", { expected: original, changes });
+  const edited = result.logs.find(log => log.id === original.id)!;
+  assert.equal(edited.name, "Sessão corrigida");
+  assert.equal(edited.entries[0].sets[0].weight, 31.5);
+  assert.equal(edited.entries[0].sets[0].rpe, 8);
+  assert.equal(edited.planId, original.planId);
+  assert.equal(edited.demo, original.demo);
+  assert.equal(result.logs.length, initial.logs.length);
+  await assert.rejects(performLocalAction("updateLog", { expected: original, changes: { ...changes, notes: "edição antiga" } }), /alterado em outra aba/);
+  await assert.rejects(performLocalAction("deleteLog", { expected: original }), /alterado em outra aba/);
+  await assert.rejects(performLocalAction("updateLog", { expected: edited, changes: { ...changes, entries: [{ exerciseId: "ausente", sets: changes.entries[0].sets }] } }), /não foi encontrado/);
+  await assert.rejects(performLocalAction("updateLog", { expected: edited, changes: { ...changes, date: "2999-01-01T00:00:00.000Z" } }), /futura/);
+  assert.equal((await loadLocalData()).logs.find(log => log.id === original.id)?.notes, "Anotação corrigida");
+  // An edited imported record retains its stable ID, so re-import remains idempotent.
+  const session = { date: "2026-10-12", name: "Supino reto com barra", group: "Peito", weight: 20, reps: [10, 10] };
+  const imported = await performLocalAction("importDiario", { sessions: [session] });
+  const importedLog = imported.logs.find(log => log.id.startsWith("diario-"))!;
+  await performLocalAction("updateLog", { expected: importedLog, changes: { name: importedLog.name, date: importedLog.date, duration: 5, entries: importedLog.entries, notes: "corrigido" } });
+  const repeated = await performLocalAction("importDiario", { sessions: [session] });
+  assert.equal(repeated.logs.filter(log => log.id === importedLog.id).length, 1);
+  assert.equal(repeated.logs.find(log => log.id === importedLog.id)?.notes, "corrigido");
+});
+
+test("sessão nova não grava aquecimento que não foi concluído", async () => {
+  const initial = await reset();
+  const plan = initial.plans[0];
+  const result = await performLocalAction("logWorkout", {
+    planId: plan.id, name: plan.name, date: new Date().toISOString(), duration: 30, notes: "",
+    entries: [{ exerciseId: plan.exercises[0].exerciseId, sets: [
+      { reps: 8, weight: 30, rir: 2, completed: true },
+      { reps: 10, weight: 10, rir: null, completed: false, warmup: true },
+    ] }],
+  });
+  const log = result.logs.find(item => !item.demo)!;
+  assert.equal(log.entries[0].sets.length, 1);
+  assert.equal(log.entries[0].sets[0].warmup, false);
+});
+
+test("nomes importados longos podem ser corrigidos e permanecem compatíveis com backup v1", async () => {
+  await reset();
+  const name = `Movimento ${"x".repeat(65)}`;
+  const imported = await performLocalAction("importDiario", { sessions: [{ date: "2026-10-12", name, group: "Pernas", weight: 20, reps: [10] }] });
+  const original = imported.logs.find(log => log.name === name)!;
+  const updated = await performLocalAction("updateLog", { expected: original, changes: { name, date: original.date, duration: 7, entries: original.entries, notes: "corrigido" } });
+  const restored = await performLocalAction("restoreBackup", { version: 1, ...updated });
+  assert.equal(restored.logs.find(log => log.id === original.id)?.notes, "corrigido");
+  await performLocalAction("deleteLog", original.id);
+  await assert.rejects(performLocalAction("updateLog", { expected: original, changes: { name, date: original.date, duration: 7, entries: original.entries, notes: "ressuscitar" } }), /removido/);
+  assert.ok(!(await loadLocalData()).logs.some(log => log.id === original.id));
+});

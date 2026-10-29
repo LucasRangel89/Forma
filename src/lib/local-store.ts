@@ -3,7 +3,8 @@ import { buildDemo } from "./demo";
 import { buildDiarioLogs, type DiarioSession } from "./importer";
 import { normalizeName } from "./taxonomy";
 import { normalizeSettings, type AppData, type Exercise, type Settings, type WorkoutPlan } from "./types";
-import { appDataSchema, exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema } from "./validation";
+import { appDataSchema, deleteLogSchema, exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema, updateLogSchema } from "./validation";
+import { sameWorkoutLog } from "./log-edit";
 
 // One record per browser. Every change is a single IndexedDB transaction, so a
 // failed write cannot leave plans, exercises and history only partially updated.
@@ -143,12 +144,23 @@ function applyAction(data: AppData, action: string, payload: unknown, prepared?:
       const log = logSchema.parse(payload);
       requireExercises(data, log.entries.map(entry => entry.exerciseId));
       if (log.planId && !data.plans.some(plan => plan.id === log.planId)) throw new Error("O treino não está mais no planejamento.");
-      const entries = log.entries.map(entry => ({ ...entry, sets: entry.sets.filter(set => set.completed || set.warmup).map(set => ({ ...set, warmup: set.warmup ?? false })) })).filter(entry => entry.sets.length);
+      const entries = log.entries.map(entry => ({ ...entry, sets: entry.sets.filter(set => set.completed).map(set => ({ ...set, warmup: set.warmup ?? false })) })).filter(entry => entry.sets.length);
       return { ...data, logs: [{ ...log, id: crypto.randomUUID(), entries, demo: false }, ...data.logs] };
     }
+    case "updateLog": {
+      const { expected, changes } = updateLogSchema.parse(payload);
+      const existing = data.logs.find(log => log.id === expected.id);
+      if (!existing) throw new Error("Este registro já foi removido. Suas alterações continuam nesta tela.");
+      if (!sameWorkoutLog(existing, expected)) throw new Error("Este registro foi alterado em outra aba. Copie suas alterações e reabra o registro antes de salvar.");
+      requireExercises(data, changes.entries.map(entry => entry.exerciseId));
+      return { ...data, logs: data.logs.map(log => log.id === existing.id ? { ...existing, ...changes } : log) };
+    }
     case "deleteLog": {
-      const id = z.string().min(1).max(100).parse(payload);
-      if (!data.logs.some(log => log.id === id)) throw new Error("Este registro já foi removido.");
+      const input = deleteLogSchema.parse(payload);
+      const id = typeof input === "string" ? input : input.expected.id;
+      const existing = data.logs.find(log => log.id === id);
+      if (!existing) throw new Error("Este registro já foi removido.");
+      if (typeof input !== "string" && !sameWorkoutLog(existing, input.expected)) throw new Error("Este registro foi alterado em outra aba. Reabra-o antes de excluir.");
       return { ...data, logs: data.logs.filter(log => log.id !== id) };
     }
     case "clearDemo":

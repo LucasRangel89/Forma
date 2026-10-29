@@ -154,3 +154,74 @@ html:not([data-theme="noite"]) :is(.modal h3,.data-management-row h3,.add-exerci
 .fatigue-box{padding:8px 5px}
 .fb-label{overflow-wrap:normal}
 .state-chip{font-size:9px;padding:2px 3px}
+
+/* Flexible session logging, corrections and real-history progress. */
+.session-editable,.editable-set{border:0;padding:0;margin:0;min-width:0;min-inline-size:0}
+.editable-set .set-input-row{border-top:1px solid var(--line)}
+.set-row-options{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:36px;padding:0 2px 5px}
+.set-row-options label,.set-row-options button,.remove-session-exercise,.log-edit-heading button,.set-actions button{display:inline-flex;align-items:center;gap:6px;font-size:11px;min-height:32px;color:#405d43}
+.set-row-options label{cursor:pointer;padding:4px 2px}
+.set-row-options input{width:17px;height:17px;accent-color:#577b59}
+.set-row-options button:disabled,.set-actions button:disabled{opacity:.55;cursor:not-allowed}
+.set-actions{flex-wrap:wrap}
+.set-actions-buttons{gap:10px}
+.session-context>span{white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+.progression-hint{margin:10px 0 15px;padding:11px 13px;border:1px solid #d5e3d0;background:#f2f7ef;border-radius:7px;color:#354e38;font-size:12px;line-height:1.6}
+.progression-hint strong{display:block;margin-bottom:3px}
+.progression-ready{border-color:#91b28d;background:#eaf4e7}
+.draft-status{font-size:11px;line-height:1.55;margin:8px 0 16px;color:#49604a}
+.draft-status-error{padding:9px 11px;border:1px solid #d6a790;border-radius:6px;background:#fff4ed;color:#803e2a}
+.session-footer-actions,.log-footer-actions,.draft-banner-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.log-edit-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;background:#f7faf3}
+.log-edit-heading h3{font-size:13px;overflow-wrap:anywhere}
+.remove-session-exercise{margin-top:12px}
+.log-table-wrap,.progress-table-wrap{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.log-table-wrap .data-table{min-width:580px}
+.draft-banner{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:20px;padding:16px 18px;background:#eef5eb;border:1px solid #c9ddc6;border-radius:10px;color:#304c34}
+.draft-banner strong{font-size:13px}.draft-banner p{font-size:12px;line-height:1.5;margin-top:4px}
+.strength-filters{display:flex;align-items:end;gap:14px;flex-wrap:wrap;margin:20px 0}
+.strength-filters>.field{min-width:180px;flex:1}
+.strength-filters>.checkbox-label{min-height:40px;flex:0 0 auto;padding:0;font-size:12px}
+.strength-filters .standalone-select{width:100%;max-width:100%}
+.strength-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+.strength-stats>div{display:flex;flex-direction:column;gap:5px;min-width:0;padding:14px;background:#f5f8f2;border:1px solid #e1eadb;border-radius:8px}
+.strength-stats span{font-size:10px;letter-spacing:.04em;font-weight:650}
+.strength-stats strong{font-size:25px;line-height:1.25;color:#354e38}.strength-stats strong small{font-size:13px}
+.strength-stats>div>small{font-size:11px;line-height:1.5}
+.strength-history-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 8px}
+.strength-history-heading h3{font-size:13px}.strength-history-heading span{font-size:11px}
+.strength-table{min-width:500px}.strength-table .text-link{min-height:32px}
+.strength-card>.info-note{margin-top:22px}
+[data-theme="noite"] .exercise-picker,[data-theme="noite"] .log-edit-heading,[data-theme="noite"] .strength-stats>div{background:#211a17;border-color:#654738}
+[data-theme="noite"] .exercise-picker>.search-field{background:#171210;border-color:#654738}
+[data-theme="noite"] .exercise-picker>div>button:hover:not(:disabled){background:#432b23}
+[data-theme="noite"] .set-row-options label,[data-theme="noite"] .set-row-options button,[data-theme="noite"] .remove-session-exercise,[data-theme="noite"] .log-edit-heading button,[data-theme="noite"] .set-actions button{color:#f0d5c7}
+[data-theme="noite"] .progression-hint,[data-theme="noite"] .draft-banner{background:#2c211d;border-color:#805b48;color:#f0d5c7}
+[data-theme="noite"] .progression-ready{background:#3b2b20;border-color:#a88264}
+[data-theme="noite"] .draft-status{color:#e3d2c8}
+[data-theme="noite"] .draft-status-error{background:#3a201b;border-color:#a56c5a;color:#ffdfd0}
+[data-theme="noite"] .strength-stats strong{color:#f4e6df}
+@media(max-width:700px){
+  .draft-banner{align-items:stretch;flex-direction:column}
+  .strength-filters>.field{min-width:140px}
+  .strength-filters>.checkbox-label{min-width:0}
+}
+@media(max-width:520px){
+  .modal-footer:has(.session-footer-actions),.modal-footer:has(.log-footer-actions){flex-wrap:wrap}
+  .session-footer-summary{flex-direction:row;align-items:baseline;gap:5px;width:100%}
+  .session-footer-actions,.log-footer-actions{width:100%}
+  .session-footer-actions>.button,.log-footer-actions>.button{flex:1;justify-content:center;min-width:0}
+  .log-edit-heading{align-items:flex-start;flex-direction:column}
+  .strength-stats{grid-template-columns:1fr;gap:8px}
+  .strength-stats>div{padding:11px}
+  .strength-filters>.field{min-width:100%}
+}
+.register-extra-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.register-extra-actions>.button{flex:1;justify-content:center;min-width:190px}
+/* The rest timer sits on a dark pill, independently of the modal theme. */
+html:not([data-theme="noite"]) .modal .rest-pill,html:not([data-theme="noite"]) .modal .rest-pill button,[data-theme="noite"] .modal .rest-pill,[data-theme="noite"] .modal .rest-pill button{color:#fff}
+.strength-first-point{padding:28px 8px 10px;text-align:center;font-size:12px;line-height:1.6}
+.set-metadata{font-size:11px;line-height:1.5;margin:0 0 8px;color:#485b4b}
+[data-theme="noite"] .set-metadata{color:#e3d2c8}
+.missing-exercise{margin-bottom:15px;padding:12px;border:1px solid #d6a790;border-radius:7px;background:#fff4ed}
+[data-theme="noite"] .missing-exercise{background:#3a201b;border-color:#a56c5a}

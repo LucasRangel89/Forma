@@ -11,7 +11,9 @@
     "test": "node --test test/core.test.js",
     "test:pages": "playwright test tests/pages.spec.ts",
     "serve:pages": "node scripts/serve-pages.mjs",
-    "test:local": "tsx --test tests/local-store.test.ts"
+    "test:local": "tsx --test tests/local-store.test.ts tests/progress.test.ts tests/session-draft.test.ts",
+    "test:server-api": "tsx --test tests/server-api.test.ts",
+    "test:server-ui": "playwright test tests/server.spec.ts"
   },
   "dependencies": {
     "@fontsource-variable/dm-sans": "^5.3.0",
