@@ -8,7 +8,8 @@ import { normalizeName } from "@/lib/taxonomy";
 import { UserFacingError } from "@/lib/errors";
 import { buildDiarioLogs, type DiarioSession } from "@/lib/importer";
 import { normalizeSettings, type Exercise, type Settings, type WorkoutPlan } from "@/lib/types";
-import { exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema } from "@/lib/validation";
+import { deleteLogSchema, exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema, updateLogSchema } from "@/lib/validation";
+import { sameWorkoutLog } from "@/lib/log-edit";
 
 export const dynamic = "force-dynamic";
 
@@ -90,12 +91,37 @@ export async function POST(request: NextRequest) {
         const log = logSchema.parse(body.payload);
         checkIds(log.entries.map(e => e.exerciseId));
         if (log.planId && !current.plans.some(p => p.id === log.planId)) throw new UserFacingError("O treino não está mais disponível neste perfil.");
-        await db.insert(workoutLogs).values({ ...log, id: crypto.randomUUID(), ownerId: owner, date: new Date(log.date), demo: false, entries: log.entries.map(e => ({ ...e, sets: e.sets.filter(s => s.completed || s.warmup).map(s => ({ ...s, warmup: s.warmup ?? false })) })).filter(e => e.sets.length) });
+        await db.insert(workoutLogs).values({ ...log, id: crypto.randomUUID(), ownerId: owner, date: new Date(log.date), demo: false, entries: log.entries.map(e => ({ ...e, sets: e.sets.filter(s => s.completed).map(s => ({ ...s, warmup: s.warmup ?? false })) })).filter(e => e.sets.length) });
+        break;
+      }
+      case "updateLog": {
+        const { expected, changes } = updateLogSchema.parse(body.payload);
+        checkIds(changes.entries.map(entry => entry.exerciseId));
+        // Lock the row while comparing and updating it, so two editors cannot
+        // both overwrite the same historical snapshot.
+        await db.transaction(async tx => {
+          const [row] = await tx.select().from(workoutLogs).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, expected.id))).for("update");
+          if (!row) throw new UserFacingError("Este registro já foi removido. Suas alterações continuam nesta tela.");
+          const { ownerId: _owner, ...record } = row;
+          if (!sameWorkoutLog({ ...record, date: record.date.toISOString() }, expected)) throw new UserFacingError("Este registro foi alterado em outra aba. Copie suas alterações e reabra o registro antes de salvar.");
+          await tx.update(workoutLogs).set({ ...changes, date: new Date(changes.date) }).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, expected.id)));
+        });
         break;
       }
       case "deleteLog": {
-        const id = z.string().max(100).parse(body.payload);
-        await db.delete(workoutLogs).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, id)));
+        const input = deleteLogSchema.parse(body.payload);
+        if (typeof input === "string") {
+          // Backward compatibility with clients that only send an ID.
+          await db.delete(workoutLogs).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, input)));
+        } else {
+          await db.transaction(async tx => {
+            const [row] = await tx.select().from(workoutLogs).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, input.expected.id))).for("update");
+            if (!row) throw new UserFacingError("Este registro já foi removido.");
+            const { ownerId: _owner, ...record } = row;
+            if (!sameWorkoutLog({ ...record, date: record.date.toISOString() }, input.expected)) throw new UserFacingError("Este registro foi alterado em outra aba. Reabra-o antes de excluir.");
+            await tx.delete(workoutLogs).where(and(eq(workoutLogs.ownerId, owner), eq(workoutLogs.id, row.id)));
+          });
+        }
         break;
       }
       case "clearDemo": {

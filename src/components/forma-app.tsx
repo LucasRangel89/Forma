@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Activity, ArrowUpRight, Bell, BookOpen, Check, CheckCircle2, ChevronDown, ChevronRight, Dumbbell, LayoutGrid, Leaf, Library, Loader2, Menu, Search, SlidersHorizontal, Sparkles, Target, TrendingUp, WifiOff, X, AlertCircle } from "lucide-react";
+import { Activity, ArrowUpRight, Bell, BookOpen, Check, CheckCircle2, ChevronDown, ChevronRight, Dumbbell, LayoutGrid, Leaf, Library, Loader2, Menu, Play, Search, SlidersHorizontal, Sparkles, Target, TrendingUp, WifiOff, X, AlertCircle } from "lucide-react";
 import type { AppData, View, WorkoutLog, WorkoutPlan } from "@/lib/types";
 import { recommendation } from "@/lib/engine";
 import { loadLocalData, localErrorMessage, performLocalAction, subscribeToLocalChanges } from "@/lib/local-store";
@@ -8,10 +8,12 @@ import { appDataSchema } from "@/lib/validation";
 import { Dashboard } from "./dashboard";
 import { ExercisesView, JournalView, ProgressView, WorkoutsView } from "./library-views";
 import { AssistantView, SettingsView } from "./assistant-settings";
-import { CheckInDialog, ExerciseDetail, ExerciseEditor, GuideDialog, LogDetail, PlanEditor, RegisterDialog, WorkoutSession } from "./dialogs";
-import { IconButton } from "./ui";
+import { CheckInDialog, ExerciseDetail, ExerciseEditor, GuideDialog, LogDetail, PlanEditor, RegisterDialog } from "./dialogs";
+import { WorkoutSession } from "./workout-session";
+import { clearSessionDraft, readSessionDraft, type DraftState, type SessionDraft } from "@/lib/session-draft";
+import { Button, IconButton } from "./ui";
 
-type Dialog = { type: "register" } | { type: "session"; plan: WorkoutPlan; manual: boolean } | { type: "plan"; plan?: WorkoutPlan } | { type: "exercise"; exercise: AppData["exercises"][number] } | { type: "exercise-edit"; exercise?: AppData["exercises"][number] } | { type: "log"; log: WorkoutLog } | { type: "checkin" } | { type: "guide" } | null;
+type Dialog = { type: "register" } | { type: "session"; plan: WorkoutPlan; manual: boolean; free?: boolean; draft?: SessionDraft } | { type: "plan"; plan?: WorkoutPlan } | { type: "exercise"; exercise: AppData["exercises"][number] } | { type: "exercise-edit"; exercise?: AppData["exercises"][number] } | { type: "log"; log: WorkoutLog } | { type: "checkin" } | { type: "guide" } | null;
 interface QueueItem { action: string; payload: unknown; message?: string }
 const LOCAL_MODE = process.env.NEXT_PUBLIC_FORMA_STORAGE === "local";
 const QUEUE_KEY = "forma-offline-queue";
@@ -31,7 +33,9 @@ export default function FormaApp({ initialData }: { initialData: AppData }) {
   const [status, setStatus] = useState<"loading" | "synced" | "error" | "saving">("loading"), [toast, setToast] = useState<{ text: string; error: boolean; id: number } | null>(null), [notifications, setNotifications] = useState(false), [unread, setUnread] = useState(true), [queueLen, setQueueLen] = useState(0);
   const [localReady, setLocalReady] = useState(!LOCAL_MODE);
   const [recoveryError, setRecoveryError] = useState("");
+  const [sessionDraft, setSessionDraft] = useState<DraftState>(null);
   const recoveryInput = useRef<HTMLInputElement>(null);
+  const draftBannerRef = useRef<HTMLElement>(null);
   const initialization = useRef<Promise<void>>(Promise.resolve());
   const settingsDirty = useRef(false);
   const setSettingsDirty = useCallback((dirty: boolean) => { settingsDirty.current = dirty; }, []);
@@ -57,6 +61,7 @@ export default function FormaApp({ initialData }: { initialData: AppData }) {
     }
   }, [notify]);
   useEffect(() => { initialization.current = Promise.resolve().then(load); }, [load]);
+  useEffect(() => { const timer = setTimeout(() => setSessionDraft(readSessionDraft()), 0); return () => clearTimeout(timer); }, []);
   useEffect(() => {
     if (!mobile) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -169,6 +174,14 @@ export default function FormaApp({ initialData }: { initialData: AppData }) {
     } catch (e) {
       const networkDown = e instanceof TypeError;
       if (networkDown || !navigator.onLine) {
+        // A network failure can happen after the server has committed. Do not
+        // queue workout creation, corrections or deletion and apply them later behind an open
+        // editor: the user must check history before retrying an ambiguous save.
+        if (name === "updateLog" || name === "deleteLog" || name === "logWorkout") {
+          setStatus("error");
+          notify("Não foi possível confirmar o salvamento. Ele não entrou na fila offline; confira o diário antes de tentar novamente.", true);
+          return false;
+        }
         const queue = readQueue();
         queue.push({ action: name, payload, message });
         writeQueue(queue);
@@ -182,9 +195,33 @@ export default function FormaApp({ initialData }: { initialData: AppData }) {
       return false;
     }
   }
-  const openStart = (plan: WorkoutPlan) => setDialog({ type: "session", plan, manual: false });
+  function beginSession(plan: WorkoutPlan, manual: boolean, free = false) {
+    const existing = readSessionDraft();
+    if (existing?.kind === "ready" || existing?.kind === "invalid") {
+      if (!confirm("Há um rascunho nesta aba. Começar outra sessão irá descartá-lo. Deseja continuar?")) return;
+      if (!clearSessionDraft()) { notify("Não foi possível remover o rascunho anterior. Seus dados não foram alterados.", true); return; }
+      setSessionDraft(null);
+    }
+    setToast(null);
+    setDialog({ type: "session", plan, manual, free });
+  }
+  function beginFreeSession() {
+    beginSession({ id: crypto.randomUUID(), name: "Treino livre", subtitle: "Sessão avulsa", type: "Personalizado", day: new Date().getDay(), exercises: [] }, true, true);
+  }
+  function resumeDraft(draft: SessionDraft) {
+    // A custom exercise may have been linked or removed in another tab. The
+    // session editor can reassign it while keeping all of its recorded sets.
+    setToast(null);
+    setDialog({ type: "session", plan: draft.plan, manual: draft.manual, free: draft.free, draft });
+  }
+  function discardDraft() {
+    if (!confirm("Descartar o rascunho desta aba? Esta ação não exclui treinos já registrados.")) return;
+    if (clearSessionDraft()) { setSessionDraft(null); requestAnimationFrame(() => document.getElementById("main-content")?.focus()); }
+    else notify("Não foi possível remover o rascunho desta aba.", true);
+  }
+  const openStart = (plan: WorkoutPlan) => beginSession(plan, false);
   const openPlan = (plan: WorkoutPlan) => setDialog({ type: "plan", plan });
-  const openLog = (log: WorkoutLog) => setDialog({ type: "log", log });
+  const openLog = (log: WorkoutLog) => { setToast(null); setDialog({ type: "log", log }); };
   const openDetail = (exercise: AppData["exercises"][number]) => setDialog({ type: "exercise", exercise });
   const openRegister = () => setDialog({ type: "register" });
   const openNew = () => setDialog({ type: "plan" });
@@ -219,10 +256,10 @@ export default function FormaApp({ initialData }: { initialData: AppData }) {
       <div className="sidebar-bottom"><div className="sidebar-guide"><span className="guide-mini-icon"><Leaf size={18} strokeWidth={1.5} /></span><svg className="guide-decoration" viewBox="0 0 100 90" aria-hidden="true"><path d="M85 100C25 85 20 48 56 35c35-14 32 37 5 26C31 49 40 9 92 0M107 99C47 91 39 64 74 50c35-14 30 29 7 23C60 65 54 26 104 15" fill="none" stroke="currentColor" strokeWidth="1" /></svg><h3>Menos achismo.<br />Mais intenção.</h3><p>Importe seu diário, leia a fadiga,<br />registre na academia.</p><button onClick={() => { setMobile(false); setDialog({ type: "guide" }); }}>Explore o guia Forma <ArrowUpRight size={14} /></button></div><button className="profile-button" onClick={() => navigate("settings")} title="Configurar meu perfil"><span className="profile-avatar">{initials}</span><span className="profile-copy"><strong>{data.settings.name}</strong><small>{data.settings.level}</small></span><ChevronDown size={15} /></button><button className={`sync-status ${status === "error" ? "sync-error" : ""}`} onClick={() => { if (status === "error") { initialization.current = load(); } if (queueLen) flushQueue(); }} title={LOCAL_MODE ? "Dados salvos apenas neste navegador" : queueLen ? `${queueLen} alteração(ões) aguardando conexão` : "Seus dados são salvos no banco de dados"}>{queueLen ? <WifiOff size={10} /> : status === "loading" || status === "saving" ? <Loader2 size={10} className="spin" /> : status === "error" ? <WifiOff size={10} /> : <span />}{queueLen ? `${queueLen} na fila offline` : status === "loading" ? "Preparando seu espaço" : status === "saving" ? "Salvando suas escolhas" : status === "error" ? LOCAL_MODE ? "Alteração não salva — verificar" : "Tentar sincronizar novamente" : LOCAL_MODE ? "Salvo neste navegador" : "Tudo salvo. Tudo seu."}</button></div>
     </aside>
     <div className="main-shell"><header className="topbar"><div className="topbar-left"><IconButton className="mobile-menu" label="Abrir navegação" aria-expanded={mobile} aria-controls="main-sidebar" onClick={() => setMobile(true)}><Menu size={22} /></IconButton><span className="breadcrumb-home">Meu espaço</span><ChevronRight size={12} /><span className="breadcrumb-current">{active.label}</span></div><div className="topbar-right"><button className="topbar-search" aria-label="Buscar exercício ⌘ K" onClick={openSearch}><Search size={16} /><span>Buscar exercício</span><kbd>⌘ K</kbd></button><i className="topbar-divider" /><button className="goal-label" onClick={() => navigate("settings")}><Target size={14} /><span>{data.settings.goal}</span></button><div className="notifications-wrap" ref={notificationRef}><IconButton label="Abrir notificações" className="notification-button" aria-expanded={notifications} onClick={() => { setNotifications(!notifications); setUnread(false); }}><Bell size={18} strokeWidth={1.6} />{unread && <i />}</IconButton>{notifications && <div className="notifications-panel"><div><h3>No seu ritmo</h3><span>Atualizações do seu espaço</span></div><button onClick={() => navigate("assistant")}><span><Sparkles size={19} /></span><div><strong>Seu próximo passo está pronto</strong><p>{recommendation(data)?.plan.name ?? "Crie um programa"} pode ser uma boa escolha. Entenda por quê.</p></div><ChevronRight size={14} /></button><button onClick={() => { setNotifications(false); setDialog({ type: "checkin" }); }}><span><Activity size={19} /></span><div><strong>Como você está hoje?</strong><p>Seu check-in deixa a estimativa de recuperação mais pessoal.</p></div><ChevronRight size={14} /></button><p>Estimativas orientam. Você decide.</p></div>}</div></div></header>
-      <main className="main-content" id="main-content">{view === "overview" && <Dashboard data={data} onNavigate={navigate} onStart={openStart} onEdit={openPlan} onLog={openLog} onRegister={openRegister} onCheckIn={() => setDialog({ type: "checkin" })} />}{view === "workouts" && <WorkoutsView data={data} onStart={openStart} onEdit={openPlan} onNew={openNew} onNavigate={navigate} action={action} notify={notify} />}{view === "exercises" && <ExercisesView data={data} onDetail={openDetail} onNew={() => setDialog({ type: "exercise-edit" })} action={action} />}{view === "journal" && <JournalView data={data} onLog={openLog} onRegister={openRegister} action={action} />}{view === "progress" && <ProgressView data={data} onNavigate={navigate} />}{view === "assistant" && <AssistantView data={data} action={action} onStart={openStart} onNavigate={navigate} onDetail={openDetail} onCheckIn={() => setDialog({ type: "checkin" })} />}{view === "settings" && <SettingsView data={data} action={action} localMode={LOCAL_MODE} onDirtyChange={setSettingsDirty} />}</main>
+      <main className="main-content" id="main-content" tabIndex={-1}>{!dialog && (sessionDraft?.kind === "ready" || sessionDraft?.kind === "invalid") && <section ref={draftBannerRef} tabIndex={-1} className="draft-banner" aria-label="Rascunho de treino"><div><strong>{sessionDraft.kind === "ready" ? `Treino em andamento: ${sessionDraft.draft.sessionName || sessionDraft.draft.plan.name}` : "Não foi possível ler o rascunho desta aba"}</strong><p>{sessionDraft.kind === "ready" ? "Guardado apenas nesta aba, fora do backup. O cronômetro fica pausado até você continuar." : "O rascunho não foi substituído. Você pode descartá-lo para iniciar outra sessão."}</p></div><div className="draft-banner-actions">{sessionDraft.kind === "ready" && <Button disabled={status === "loading" || status === "saving"} onClick={() => resumeDraft(sessionDraft.draft)}><Play size={14} />Continuar treino</Button>}<Button variant="secondary" onClick={discardDraft}>Descartar rascunho</Button></div></section>}{view === "overview" && <Dashboard data={data} onNavigate={navigate} onStart={openStart} onEdit={openPlan} onLog={openLog} onRegister={openRegister} onCheckIn={() => setDialog({ type: "checkin" })} />}{view === "workouts" && <WorkoutsView data={data} onStart={openStart} onEdit={openPlan} onNew={openNew} onNavigate={navigate} action={action} notify={notify} />}{view === "exercises" && <ExercisesView data={data} onDetail={openDetail} onNew={() => setDialog({ type: "exercise-edit" })} action={action} />}{view === "journal" && <JournalView data={data} onLog={openLog} onRegister={openRegister} action={action} />}{view === "progress" && <ProgressView data={data} onNavigate={navigate} onLog={openLog} />}{view === "assistant" && <AssistantView data={data} action={action} onStart={openStart} onNavigate={navigate} onDetail={openDetail} onCheckIn={() => setDialog({ type: "checkin" })} />}{view === "settings" && <SettingsView data={data} action={action} localMode={LOCAL_MODE} onDirtyChange={setSettingsDirty} />}</main>
     </div>
-    {dialog?.type === "register" && <RegisterDialog data={data} onPick={plan => setDialog({ type: "session", plan, manual: true })} onNew={openNew} onClose={close} />}
-    {dialog?.type === "session" && <WorkoutSession data={data} plan={dialog.plan} manual={dialog.manual} action={action} onClose={close} />}
+    {dialog?.type === "register" && <RegisterDialog data={data} onPick={plan => beginSession(plan, true)} onFree={beginFreeSession} onNew={openNew} onClose={close} />}
+    {dialog?.type === "session" && <WorkoutSession data={data} plan={dialog.plan} manual={dialog.manual} free={dialog.free} draft={dialog.draft} action={action} onDraftChange={state => { setSessionDraft(state); if (state?.kind === "ready") requestAnimationFrame(() => draftBannerRef.current?.focus()); if (state?.kind === "unavailable") notify("Não foi possível verificar ou remover o rascunho desta aba. Confira antes de registrar novamente.", true); }} onClose={close} />}
     {dialog?.type === "plan" && <PlanEditor initial={dialog.plan} data={data} action={action} onClose={close} />}
     {dialog?.type === "exercise" && <ExerciseDetail key={dialog.exercise.id} exercise={data.exercises.find(e => e.id === dialog.exercise.id) ?? dialog.exercise} data={data} action={action} onClose={close} onEdit={() => setDialog({ type: "exercise-edit", exercise: data.exercises.find(e => e.id === dialog.exercise.id) ?? dialog.exercise })} onDetail={openDetail} />}
     {dialog?.type === "exercise-edit" && <ExerciseEditor initial={dialog.exercise} action={action} onClose={close} />}

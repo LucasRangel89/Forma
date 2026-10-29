@@ -13,7 +13,7 @@ export function PageHeading({ eyebrow, title, description, children }: { eyebrow
   return <div className="page-heading"><div>{eyebrow && <p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1><p className="page-description">{description}</p></div><div className="page-actions">{children}</div></div>;
 }
 export function Dashboard({ data, onNavigate, onStart, onEdit, onLog, onRegister, onCheckIn }: Props) {
-  const now = useClock();
+  const now = useClock(data.logs);
   const current = recentLogs(data.logs, now);
   const thisWeek = windowedLogs(data, "week", now);
   const weekSets = current.reduce((sum, l) => sum + logEffectiveSets(l), 0);
