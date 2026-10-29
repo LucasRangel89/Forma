@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { exercises, profiles, workoutLogs, workoutPlans } from "@/db/schema";
 import { and, eq, or, desc } from "drizzle-orm";
 import { CATALOG } from "./catalog";
+import { UserFacingError } from "./errors";
 import { buildDemo } from "./demo";
 import { normalizeSettings, type AppData, type WorkoutPlan } from "./types";
 
@@ -38,6 +39,6 @@ export async function readAppData(owner: string): Promise<AppData> {
 }
 export async function savePlan(owner: string, plan: WorkoutPlan) {
   const existing = await db.select({ ownerId: workoutPlans.ownerId }).from(workoutPlans).where(eq(workoutPlans.id, plan.id)).limit(1);
-  if (existing.length && existing[0].ownerId !== owner) throw new Error("Treino não encontrado neste perfil.");
+  if (existing.length && existing[0].ownerId !== owner) throw new UserFacingError("Treino não encontrado neste perfil.");
   await db.insert(workoutPlans).values({ ...plan, ownerId: owner }).onConflictDoUpdate({ target: workoutPlans.id, set: { name: plan.name, subtitle: plan.subtitle, type: plan.type, day: plan.day, exercises: plan.exercises }, setWhere: and(eq(workoutPlans.ownerId, owner), eq(workoutPlans.id, plan.id)) });
 }

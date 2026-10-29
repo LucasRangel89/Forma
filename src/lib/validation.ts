@@ -20,6 +20,7 @@ export const exerciseSchema = z.object({ id: z.string().min(1).max(140), name: z
 }, "Cada músculo deve aparecer apenas uma vez, como primário ou secundário.");
 export const diarioSessionSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data no formato AAAA-MM-DD").refine(value => { const date = new Date(`${value}T12:00:00Z`); return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value; }, "Informe uma data válida."), name: z.string().trim().min(2).max(80), group: z.enum(COARSE_LABELS), weight: z.number().min(0).max(1000), reps: z.array(z.number().int().min(1).max(60)).min(1).max(20), technique: z.string().max(80).optional(), goal: z.number().min(0).max(1000).optional() });
 export const importSchema = z.object({ sessions: z.array(diarioSessionSchema).min(1).max(500) });
+export const planImportSchema = z.object({ plan: planSchema, exercises: z.array(exerciseSchema).max(25) });
 export const linkSchema = z.object({ exerciseId: z.string().min(1).max(140), targetId: z.string().min(1).max(140) });
 
 // Backups contain historical records, including records imported from the Diário

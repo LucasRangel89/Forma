@@ -24,9 +24,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Verificar qualidade e regras locais
+        run: |
+          npm run lint
+          npm test
+          npm run test:local
       - run: npm run build:pages
         env:
           NEXT_PUBLIC_BASE_PATH: /Forma
+      - run: npm run typecheck
+      - name: Instalar Chromium para testes
+        run: npx playwright install --with-deps chromium
+      - name: Testar a versão estática
+        run: npm run test:pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

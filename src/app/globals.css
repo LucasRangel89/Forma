@@ -69,7 +69,7 @@
 [data-theme="noite"] .assistant-intro,[data-theme="noite"] .info-note{background:#221a16;border-color:#332622;color:#c9a89b}
 [data-theme="noite"] .new-plan-card{background:#171210;border-color:#332622}
 [data-theme="noite"] .toast{background:#2c201c;border-color:#42302a;color:#ecd9d0}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:0s!important;scroll-behavior:auto!important}}
 
 /* Local-first status and demo context: never present sample data as a real history. */
 .startup-status{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
@@ -85,5 +85,72 @@
 /* Keep keyboard focus apparent and respect the system's motion preference. */
 :where(button,a,input,select,textarea):focus-visible{outline:3px solid #4f7b52;outline-offset:3px}
 [data-theme="noite"] :where(button,a,input,select,textarea):focus-visible{outline-color:#ffd0b4}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:0s!important;scroll-behavior:auto!important}}
 @media(max-width:700px){.sidebar:not(.is-open){visibility:hidden}.demo-banner{align-items:flex-start;flex-direction:column}.demo-banner button{min-height:36px}}
+
+/* Readable text on light surfaces; retain the sage palette without pale copy. */
+html:not([data-theme="noite"]){--muted:#526454}
+html:not([data-theme="noite"]) :is(.brand-tagline,.nav-section-title,.nav-new,.sidebar-guide p,.sidebar-guide button,.profile-avatar,.profile-copy small,.sync-status,.breadcrumb-home,.topbar-search,.topbar-search kbd,.goal-label,.page-description,.eyebrow){color:#485b4b}
+html:not([data-theme="noite"]) .nav-item{color:#4d604d}
+html:not([data-theme="noite"]) :is(.card,.stat-card,.plan-overview,.journal-stats,.assistant-intro,.assistant-banner,.notifications-panel,.demo-banner,.modal) :where(p,small,label,th,td,dt,dd,span,strong,button:not(.button)):where(:not(.button-primary *):not(.button-mint *):not(.button-danger *):not(.exercise-art *)){color:#485b4b}
+html:not([data-theme="noite"]) :is(.info-note,.info-note strong,.info-note button,.text-link,.checkbox-label,.chart-footnote,.chart-footnote button,.dashboard-footer,.pagination,.pagination span,.demo-notice){color:#485b4b}
+html:not([data-theme="noite"]) :is(.badge-green,.badge-amber,.badge-gray,.badge-purple){color:#40563f}
+html:not([data-theme="noite"]) .badge-amber{color:#735222}
+html:not([data-theme="noite"]) .badge-purple{color:#5d4b70}
+html:not([data-theme="noite"]) .danger-text{color:#963b2d!important}
+
+/* Important labels and controls should remain comfortable at normal zoom. */
+.brand-tagline,.nav-section-title{font-size:9px}
+.nav-item{font-size:13px}
+.profile-copy small,.sync-status,.breadcrumb-home,.breadcrumb-current,.topbar-search,.goal-label{font-size:11px}
+.sync-status{min-height:28px;margin-left:43px}
+.page-description,.section-heading p,.card-description,.info-note,.assistant-intro{font-size:12px}
+.stat-top,.stat-bottom,.stat-value>span:not(.stat-unit):not(.badge),.gami-card h3,.gami-value>small{font-size:11px}
+.fatigue-tabs button,.fb-label,.state-chip,.recovery-legend,.recovery-checkin{font-size:10px}
+.fb-label{white-space:normal;overflow:visible;overflow-wrap:anywhere}
+.state-chip{white-space:normal;max-width:100%}
+.data-table th,.data-table td,.table-workout span,.table-secondary,.table-duration,.unit{font-size:11px}
+.journal-stats>div>span,.journal-stats strong small,.plan-metrics,.plan-preview small,.plan-last,.exercise-tags>span,.exercise-card-footer,.pagination,.field{font-size:11px}
+.badge,.exercise-tags>.badge,.volume-detail-heading .badge{font-size:10px}
+@media(max-width:700px){.mobile-menu{min-width:40px;min-height:40px}.fatigue-box{padding:8px}.stat-top,.stat-bottom,.stat-value>span:not(.stat-unit):not(.badge){font-size:11px}}
+html:not([data-theme="noite"]) :is(.tabs button,.tabs button span,.plan-last,.new-plan-card strong,.new-plan-card p,.new-plan-link,.gami-card h3,.assistant-recommendation h3,.coverage-item h3,.freedom-card h2,.settings-page .field){color:#485b4b}
+html:not([data-theme="noite"]) .calendar-day.selected :is(span,strong){color:#fff}
+
+/* The optional night theme uses the same contrast and interaction standards. */
+[data-theme="noite"] :is(.journal-stats,.plan-overview,.assistant-banner,.recovery-checkin,.calendar-day.done,.equipment-presets button,.coverage-item button,.reason-list span,.agenda-row strong small){background:#2c211d;border-color:#4a352d}
+[data-theme="noite"] :is(.card,.stat-card,.sidebar,.topbar,.journal-stats,.plan-overview,.assistant-banner,.recovery-checkin,.modal,.notifications-panel,.new-plan-card,.info-note) :where(p,small,label,th,td,dt,dd,span,strong,button:not(.button)):where(:not(.button-primary *):not(.button-mint *):not(.button-danger *):not(.exercise-art *)){color:#e3d2c8}
+[data-theme="noite"] :is(.nav-section-title,.sync-status,.breadcrumb-current,.text-link,.info-note strong,.info-note button,.new-plan-card strong,.new-plan-card p,.new-plan-link,.plan-last){color:#e3c7b8}
+[data-theme="noite"] .topbar-search kbd{background:#2c211d;border-color:#4a352d;color:#e3d2c8}
+[data-theme="noite"] .button-secondary{color:#f0ddd4}
+[data-theme="noite"] .stat-value{color:#f3e9e4}
+[data-theme="noite"] .fatigue-box :is(strong,.state-chip){color:#f2ddd1!important}
+[data-theme="noite"] .calendar-day.selected :is(span,strong){color:#fff}
+[data-theme="noite"] .calendar-day.selected{background:#a83c27}
+html:not([data-theme="noite"]) .stat-value>span:not(.stat-unit):not(.badge){color:#485b4b}
+[data-theme="noite"] :is(.recovery-checkin>span,.data-table th,.assistant-intro strong){color:#e3d2c8}
+[data-theme="noite"] .volume-bar>span{color:#40563f}
+.settings-error{margin:0 0 18px;padding:12px 14px;border:1px solid #d7a79b;border-radius:6px;background:#fff3ef;color:#8c2e21}
+[data-theme="noite"] .settings-error{background:#3a201b;border-color:#a56c5a;color:#ffdfd0}
+html:not([data-theme="noite"]) :is(.modal,.settings-page) :is(input,select,textarea){color:#354d39}
+html:not([data-theme="noite"]) :is(.modal h3,.data-management-row h3,.add-exercise-button){color:#485b4b}
+
+/* Títulos auxiliares de configurações têm contraste suficiente nos dois temas. */
+.settings-block-title{color:#52663e}
+[data-theme="noite"] .settings-block-title{color:#c1cda8}
+
+@media(max-width:700px){.page-heading>.page-actions{flex-wrap:wrap;max-width:100%}}
+
+.glossary summary{color:#526a44}
+[data-theme="noite"] .glossary summary{color:#e3ad99}
+
+[data-theme="noite"] .target-input input{background:#171210;border-color:#513c34;color:#ead7cc}
+[data-theme="noite"] .field small{color:#b3a096}
+[data-theme="noite"] .checkin-options>button{background:#211a17;border-color:#62483c;color:#ead8ce}
+[data-theme="noite"] .checkin-options>button.selected{background:#432b23;border-color:#d59072;color:#ffe4d7;box-shadow:0 0 0 2px #77493788}
+[data-theme="noite"] .checkin-options>button strong,[data-theme="noite"] .checkin-options>button span{color:inherit}
+[data-theme="noite"] .session-exercise-index,[data-theme="noite"] .session-context>span{background:#34241e;border-color:#654738;color:#f0d5c7}
+/* Evita quebrar nomes de músculos dentro dos cartões estreitos. */
+.fatigue-boxes{grid-template-columns:repeat(auto-fit,minmax(76px,1fr))}
+.fatigue-box{padding:8px 5px}
+.fb-label{overflow-wrap:normal}
+.state-chip{font-size:9px;padding:2px 3px}

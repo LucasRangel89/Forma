@@ -3,7 +3,7 @@ import { buildDemo } from "./demo";
 import { buildDiarioLogs, type DiarioSession } from "./importer";
 import { normalizeName } from "./taxonomy";
 import { normalizeSettings, type AppData, type Exercise, type Settings, type WorkoutPlan } from "./types";
-import { appDataSchema, exerciseSchema, importSchema, linkSchema, logSchema, planSchema, settingsSchema } from "./validation";
+import { appDataSchema, exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema } from "./validation";
 
 // One record per browser. Every change is a single IndexedDB transaction, so a
 // failed write cannot leave plans, exercises and history only partially updated.
@@ -44,7 +44,7 @@ function readRecord(record: ProfileRecord | undefined): AppData {
   if (!record) return initialData();
   if (record.version !== 1) throw new Error("Estes dados foram criados por outra versão do Forma. Eles não foram alterados.");
   const result = appDataSchema.safeParse(record.data);
-  if (!result.success) throw new Error("Não foi possível ler os dados salvos. Eles não foram substituídos; tente outro navegador ou restaure um backup.");
+  if (!result.success) throw new Error("Não foi possível ler os dados salvos. Eles não foram substituídos; se tiver um backup, você pode restaurá-lo.");
   return result.data as AppData;
 }
 
@@ -116,6 +116,15 @@ function applyAction(data: AppData, action: string, payload: unknown, prepared?:
       const plan = planSchema.parse(payload) as WorkoutPlan;
       requireExercises(data, plan.exercises.map(exercise => exercise.exerciseId));
       return { ...data, plans: [...data.plans.filter(p => p.id !== plan.id), plan] };
+    }
+    case "importPlan": {
+      const { plan, exercises } = planImportSchema.parse(payload) as { plan: WorkoutPlan; exercises: Exercise[] };
+      if (data.plans.some(existing => existing.id === plan.id)) throw new Error("Este treino já foi importado.");
+      const newExercises = exercises.filter(exercise => !data.exercises.some(existing => existing.id === exercise.id));
+      if (new Set(newExercises.map(exercise => exercise.id)).size !== newExercises.length) throw new Error("O arquivo contém exercícios repetidos.");
+      const next = { ...data, exercises: [...data.exercises, ...newExercises], userExerciseIds: [...data.userExerciseIds, ...newExercises.map(exercise => exercise.id)] };
+      requireExercises(next, plan.exercises.map(exercise => exercise.exerciseId));
+      return { ...next, plans: [...data.plans, plan] };
     }
     case "saveProgram": {
       const plans = z.array(planSchema).min(1).max(6).parse(payload) as WorkoutPlan[];
@@ -217,6 +226,6 @@ export function localErrorMessage(error: unknown): string {
     return "Confira os campos preenchidos e os limites indicados. Nenhuma alteração foi salva.";
   }
   if (error instanceof Error && error.name === "QuotaExceededError") return "Não há espaço para salvar neste navegador. Exporte seus dados e libere espaço antes de tentar novamente.";
-  if (error instanceof Error && error.name === "InvalidStateError") return "O armazenamento deste navegador não está disponível. Suas alterações não foram salvas.";
+  if (error instanceof Error && ["InvalidStateError", "SecurityError", "UnknownError"].includes(error.name)) return "O armazenamento deste navegador não está disponível. Suas alterações não foram salvas.";
   return error instanceof Error && error.message ? error.message : "Não foi possível salvar neste navegador. Seus dados preenchidos continuam nesta tela.";
 }
