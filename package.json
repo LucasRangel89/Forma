@@ -1,25 +1,33 @@
 {
-  "name": "nextjs-postgresql-template",
+  "name": "forma",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:pages": "node scripts/build-pages.mjs",
+    "test": "node --test test/core.test.js",
+    "test:pages": "playwright test tests/pages.spec.ts",
+    "serve:pages": "node scripts/serve-pages.mjs",
+    "test:local": "tsx --test tests/local-store.test.ts"
   },
   "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
     "@playwright/test": "^1.64.0",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
     "lucide-react": "^1.53.0",
-    "next": "16.2.6",
+    "next": "16.4.3",
     "pg": "8.20.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@tailwindcss/postcss": "4.1.17",
     "@types/node": "22.19.15",
     "@types/pg": "8.18.0",
@@ -27,9 +35,11 @@
     "@types/react-dom": "19.2.3",
     "drizzle-kit": "0.31.10",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
-    "postcss": "8.5.8",
+    "eslint-config-next": "16.4.3",
+    "fake-indexeddb": "^6.2.6",
+    "postcss": "8.5.32",
     "tailwindcss": "4.1.17",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3"
   }
 }

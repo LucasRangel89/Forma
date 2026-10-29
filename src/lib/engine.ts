@@ -68,7 +68,7 @@ export function fatigue(data: AppData, now = new Date()): Record<Muscle, number>
   const check = data.settings.checkIn;
   const checkAge = check ? now.getTime() - new Date(check.date).getTime() : -1;
   const adjustment = check && checkAge >= 0 && checkAge < DAY ? (3 - check.score) * 5 : 0;
-  for (const muscle of Object.keys(result) as Muscle[]) result[muscle] = Math.round(clamp(result[muscle] + adjustment));
+  for (const muscle of Object.keys(result) as Muscle[]) result[muscle] = Math.round(clamp(result[muscle] + (result[muscle] > 0 ? adjustment : 0)));
   return result;
 }
 export interface FatigueStateInfo { id: string; label: string; level: number }
@@ -81,7 +81,8 @@ export function fatigueState(v: number, scale: Settings["fatigueScale"]): Fatigu
 }
 export const STATE_COLORS: Record<string, string> = { pronto: "#739583", quase: "#9ab58b", recuperando: "#d2bc86", fadigado: "#c69875", exausto: "#b5563d" };
 export function groupFatigue(recovery: Record<Muscle, number>, muscles: Muscle[]) {
-  return Math.round(muscles.reduce((n, m) => n + recovery[m], 0) / muscles.length);
+  // A group is only as recovered as its most fatigued portion.
+  return Math.round(Math.max(0, ...muscles.map(m => recovery[m])));
 }
 export function readiness(data: AppData, now = new Date()) {
   const values = Object.values(fatigue(data, now));

@@ -5,29 +5,14 @@ import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { initializeProfile, readAppData, savePlan } from "@/lib/store";
 import { normalizeName } from "@/lib/taxonomy";
+import { UserFacingError } from "@/lib/errors";
 import { buildDiarioLogs, type DiarioSession } from "@/lib/importer";
-import { COARSE_LABELS, EQUIPMENT, MUSCLE_LABELS, ROLES, normalizeSettings, type Exercise, type Settings, type WorkoutPlan } from "@/lib/types";
+import { normalizeSettings, type Exercise, type Settings, type WorkoutPlan } from "@/lib/types";
+import { exerciseSchema, importSchema, linkSchema, logSchema, planImportSchema, planSchema, settingsSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
-const muscle = z.enum(Object.keys(MUSCLE_LABELS) as [string, ...string[]]);
-const level = z.enum(["Iniciante", "Intermediário", "Avançado"]);
-const role = z.enum(ROLES as [string, ...string[]]);
-const equipment = z.enum(EQUIPMENT as [string, ...string[]]);
-const prescriptionSchema = z.object({ exerciseId: z.string().min(1).max(140), sets: z.number().int().min(1).max(12), repsMin: z.number().int().min(1).max(120), repsMax: z.number().int().min(1).max(120), rir: z.number().min(0).max(10), rest: z.number().int().min(0).max(600), role, technique: z.enum(["Tradicional", "Drop-set", "Rest-pause", "Cluster"]) }).refine(v => v.repsMin <= v.repsMax, "A faixa de repetições está invertida.");
-const planSchema = z.object({ id: z.string().min(1).max(100), name: z.string().trim().min(1).max(60), subtitle: z.string().max(140), type: z.enum(["Upper", "Lower", "Full body", "Personalizado"]), day: z.number().int().min(0).max(6), exercises: z.array(prescriptionSchema).min(1).max(25) });
-const setSchema = z.object({ reps: z.number().int().min(1).max(120), weight: z.number().min(0).max(1000), rir: z.union([z.number().min(0).max(10), z.null()]), completed: z.boolean(), warmup: z.boolean().optional(), rpe: z.union([z.number().min(0).max(13), z.null()]).optional(), failure: z.boolean().optional() });
-const logSchema = z.object({ planId: z.string().max(100).nullable(), name: z.string().trim().min(1).max(60), date: z.string().datetime(), duration: z.number().int().min(0).max(600), entries: z.array(z.object({ exerciseId: z.string().min(1).max(140), sets: z.array(setSchema).min(1).max(20) })).min(1).max(30), notes: z.string().max(2000) }).refine(v => v.entries.some(e => e.sets.some(s => s.completed)), "Conclua pelo menos uma série para registrar o treino.").refine(v => new Date(v.date).getTime() <= Date.now() + 60000, "O registro não pode ter uma data futura.");
-const fatigueScaleSchema = z.object({ quasePronto: z.number().min(0).max(100), recuperando: z.number().min(0).max(100), fadigado: z.number().min(0).max(100), exausto: z.number().min(0).max(100) }).refine(v => v.quasePronto < v.recuperando && v.recuperando < v.fadigado && v.fadigado < v.exausto, "A escala de fadiga deve ser crescente.");
-const rirFactorsSchema = z.object({ falha: z.number().min(0).max(3), rir1: z.number().min(0).max(3), rir3: z.number().min(0).max(3), acima: z.number().min(0).max(3) });
-const settingsSchema = z.object({ name: z.string().trim().min(1).max(60), goal: z.enum(["Hipertrofia", "Força", "Condicionamento"]), level, days: z.number().int().min(2).max(6), sessionMinutes: z.number().int().min(20).max(120), equipment: z.array(equipment).min(1), restrictions: z.array(z.enum(["Ombro", "Joelho", "Lombar", "Punho"])), priorities: z.array(muscle).max(10), indirectWeight: z.number().min(0).max(1), sessionCap: z.number().int().min(4).max(20), smallTau: z.number().min(.5).max(5), largeTau: z.number().min(.5).max(5), fatigueScale: fatigueScaleSchema, rirFactors: rirFactorsSchema, targets: z.record(z.string(), z.number().min(0).max(40)), favorites: z.array(z.string()).max(500), checkIn: z.object({ score: z.number().int().min(1).max(5), date: z.string().datetime() }).nullable(), nameAliases: z.record(z.string(), z.string()).refine(v => Object.keys(v).length <= 500, "Muitos aliases."), gamification: z.object({ enabled: z.boolean() }), appearance: z.enum(["forma", "noite"]) });
-const weighted = z.object({ muscle, weight: z.number().min(.05).max(1) });
-const exerciseSchema = z.object({ id: z.string().min(1).max(140), name: z.string().trim().min(2).max(100), primary: z.array(weighted).min(1).max(8), secondary: z.array(weighted).max(8), pattern: z.string().min(2).max(60), equipment: z.array(equipment).min(1).max(9), joints: z.number().int().min(1).max(4), laterality: z.enum(["Bilateral", "Unilateral"]), roles: z.array(role).min(1), emphasis: z.array(z.string().max(40)).max(6), systemic: z.enum(["Baixa", "Média", "Alta"]), technical: z.enum(["Baixa", "Média", "Alta"]), level, resistance: z.enum(["Alongado", "Intermediário", "Encurtado"]), restrictions: z.array(z.enum(["Ombro", "Joelho", "Lombar", "Punho"])), sfr: z.number().int().min(1).max(5), instructions: z.string().max(2500), goal: z.number().min(0).max(1000).optional() }).refine(v => {
-  const muscles = [...v.primary, ...v.secondary].map(m => m.muscle);
-  return new Set(muscles).size === muscles.length;
-}, "Cada músculo deve aparecer apenas uma vez, como primário ou secundário.");
-const diarioSessionSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data no formato AAAA-MM-DD"), name: z.string().trim().min(2).max(80), group: z.enum(COARSE_LABELS), weight: z.number().min(0).max(1000), reps: z.array(z.number().int().min(1).max(60)).min(1).max(20), technique: z.string().max(80).optional(), goal: z.number().min(0).max(1000).optional() });
-const importSchema = z.object({ sessions: z.array(diarioSessionSchema).min(1).max(500) });
-const linkSchema = z.object({ exerciseId: z.string().min(1).max(140), targetId: z.string().min(1).max(140) });
+
+
 
 function identity(request: NextRequest) {
   const value = request.cookies.get("forma-profile")?.value;
@@ -66,7 +51,7 @@ export async function POST(request: NextRequest) {
     const owner = identity(request);
     await initializeProfile(owner);
     const current = await readAppData(owner);
-    const checkIds = (ids: string[]) => { if (ids.some(id => !current.exercises.some(e => e.id === id))) throw new Error("Um exercício não foi encontrado no catálogo."); };
+    const checkIds = (ids: string[]) => { if (ids.some(id => !current.exercises.some(e => e.id === id))) throw new UserFacingError("Um exercício não foi encontrado no catálogo."); };
     switch (body.action) {
       case "savePlan": {
         const plan = planSchema.parse(body.payload) as WorkoutPlan;
@@ -74,11 +59,24 @@ export async function POST(request: NextRequest) {
         await savePlan(owner, plan);
         break;
       }
+      case "importPlan": {
+        const { plan, exercises: imported } = planImportSchema.parse(body.payload) as { plan: WorkoutPlan; exercises: Exercise[] };
+        if (current.plans.some(existing => existing.id === plan.id)) throw new UserFacingError("Este treino já foi importado.");
+        const added = imported.filter(exercise => !current.exercises.some(existing => existing.id === exercise.id));
+        if (new Set(added.map(exercise => exercise.id)).size !== added.length) throw new UserFacingError("O arquivo contém exercícios repetidos.");
+        const available = new Set([...current.exercises, ...added].map(exercise => exercise.id));
+        if (plan.exercises.some(exercise => !available.has(exercise.exerciseId))) throw new UserFacingError("O arquivo não contém todos os exercícios do treino.");
+        await db.transaction(async tx => {
+          if (added.length) await tx.insert(exercises).values(added.map(exercise => ({ id: exercise.id, ownerId: owner, name: exercise.name, facets: exercise })));
+          await tx.insert(workoutPlans).values({ ...plan, ownerId: owner });
+        });
+        break;
+      }
       case "saveProgram": {
         const plans = z.array(planSchema).min(1).max(6).parse(body.payload) as WorkoutPlan[];
         for (const plan of plans) {
           checkIds(plan.exercises.map(p => p.exerciseId));
-          if (current.plans.some(p => p.id === plan.id)) throw new Error("Este programa já foi adicionado.");
+          if (current.plans.some(p => p.id === plan.id)) throw new UserFacingError("Este programa já foi adicionado.");
         }
         await db.insert(workoutPlans).values(plans.map(plan => ({ ...plan, ownerId: owner })));
         break;
@@ -91,7 +89,7 @@ export async function POST(request: NextRequest) {
       case "logWorkout": {
         const log = logSchema.parse(body.payload);
         checkIds(log.entries.map(e => e.exerciseId));
-        if (log.planId && !current.plans.some(p => p.id === log.planId)) throw new Error("O treino não está mais disponível neste perfil.");
+        if (log.planId && !current.plans.some(p => p.id === log.planId)) throw new UserFacingError("O treino não está mais disponível neste perfil.");
         await db.insert(workoutLogs).values({ ...log, id: crypto.randomUUID(), ownerId: owner, date: new Date(log.date), demo: false, entries: log.entries.map(e => ({ ...e, sets: e.sets.filter(s => s.completed || s.warmup).map(s => ({ ...s, warmup: s.warmup ?? false })) })).filter(e => e.sets.length) });
         break;
       }
@@ -130,8 +128,8 @@ export async function POST(request: NextRequest) {
         const { exerciseId, targetId } = linkSchema.parse(body.payload);
         const source = current.exercises.find(e => e.id === exerciseId);
         const target = current.exercises.find(e => e.id === targetId);
-        if (!target) throw new Error("O exercício de destino não existe no catálogo.");
-        if (!source || !current.userExerciseIds.includes(exerciseId)) throw new Error("Este exercício não pode ser vinculado.");
+        if (!target) throw new UserFacingError("O exercício de destino não existe no catálogo.");
+        if (!source || !current.userExerciseIds.includes(exerciseId)) throw new UserFacingError("Este exercício não pode ser vinculado.");
         const logs = await db.select().from(workoutLogs).where(eq(workoutLogs.ownerId, owner));
         for (const l of logs) {
           if (!l.entries.some(e => e.exerciseId === exerciseId)) continue;
@@ -148,7 +146,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) return NextResponse.json({ error: error.issues[0]?.message ?? "Confira os campos preenchidos." }, { status: 400 });
     if (error instanceof SyntaxError) return NextResponse.json({ error: "Formato inválido." }, { status: 400 });
-    console.error("Falha ao salvar", error);
-    return NextResponse.json({ error: error instanceof Error && !error.message.includes("query") ? error.message : "Não foi possível salvar. Tente novamente." }, { status: 400 });
+    if (error instanceof UserFacingError) return NextResponse.json({ error: error.message }, { status: 400 });
+    console.error("Falha inesperada ao salvar perfil", error instanceof Error ? error.name : "erro desconhecido");
+    return NextResponse.json({ error: "Não foi possível confirmar o salvamento. Confira seus dados antes de tentar novamente." }, { status: 500 });
   }
 }

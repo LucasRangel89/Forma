@@ -22,10 +22,18 @@ export function TextLink({ children, onClick, arrow = false }: { children: React
 export function EmptyState({ title, text, children }: { title: string; text: string; children?: ReactNode }) {
   return <div className="empty-state"><div className="empty-icon"><Dumbbell size={26} strokeWidth={1.5} /></div><h3>{title}</h3><p>{text}</p>{children}</div>;
 }
+export function useBeforeUnloadWarning(dirty: boolean) {
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+}
 export function Modal({ title, eyebrow, children, onClose, wide = false, footer }: { title: string; eyebrow?: string; children: ReactNode; onClose: () => void; wide?: boolean; footer?: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
-  close.current = onClose;
+  useEffect(() => { close.current = onClose; }, [onClose]);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement;
     const oldOverflow = document.body.style.overflow;
@@ -34,8 +42,9 @@ export function Modal({ title, eyebrow, children, onClose, wide = false, footer 
     const listener = (e: KeyboardEvent) => {
       if (e.key === "Escape") close.current();
       if (e.key === "Tab") {
-        const items = ref.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]');
-        if (!items?.length) return;
+        const items = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]):not([tabindex="-1"]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]') ?? [])
+          .filter(item => item.getClientRects().length > 0 && getComputedStyle(item).visibility !== "hidden");
+        if (!items.length) { e.preventDefault(); ref.current?.focus(); return; }
         const first = items[0], last = items[items.length - 1];
         if (e.shiftKey && (document.activeElement === first || document.activeElement === ref.current)) { last.focus(); e.preventDefault(); }
         else if (!e.shiftKey && (document.activeElement === last || document.activeElement === ref.current)) { first.focus(); e.preventDefault(); }
@@ -44,7 +53,7 @@ export function Modal({ title, eyebrow, children, onClose, wide = false, footer 
     document.addEventListener("keydown", listener);
     return () => { document.body.style.overflow = oldOverflow; document.removeEventListener("keydown", listener); previous?.focus(); };
   }, []);
-  return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}><div ref={ref} tabIndex={-1} className={`modal ${wide ? "modal-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}><div className="modal-header"><div>{eyebrow && <span className="eyebrow">{eyebrow}</span>}<h2>{title}</h2></div><IconButton label="Fechar janela" onClick={onClose}><X size={21} /></IconButton></div><div className="modal-body">{children}</div>{footer && <div className="modal-footer">{footer}</div>}</div></div>;
+  return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}><div ref={ref} tabIndex={-1} className={`modal ${wide ? "modal-wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}><div className="modal-header"><div>{eyebrow && <span className="eyebrow">{eyebrow}</span>}<h2>{title}</h2></div><IconButton label="Fechar janela" onClick={onClose}><X size={21} /></IconButton></div><div className="modal-body" tabIndex={0}>{children}</div>{footer && <div className="modal-footer">{footer}</div>}</div></div>;
 }
 export function InfoNote({ children, tone = "green" }: { children: ReactNode; tone?: "green" | "amber" }) {
   return <div className={`info-note ${tone === "amber" ? "info-amber" : ""}`}><Sparkles size={17} strokeWidth={1.6} /><div>{children}</div></div>;
